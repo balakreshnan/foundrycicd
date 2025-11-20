@@ -1,0 +1,12 @@
+azure-ai-projects
+azure-ai-agents
+azure-ai-evaluation
+streamlit
+openai
+uv
+python-dotenv
+azure-monitor-opentelemetry
+azure-identity
+agent-framework
+agent-framework-azure-ai
+azure-ai-evaluation[redteam]
