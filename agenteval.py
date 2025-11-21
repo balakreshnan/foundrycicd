@@ -41,6 +41,7 @@ tool_call_accuracy = ToolCallAccuracyEvaluator(model_config=model_config)
 
 async def main() -> None:
     print("=== Azure AI Chat Client with Existing Agent ===")
+    setup_observability()
 
     # Create the client
     async with (

@@ -11,18 +11,19 @@ load_dotenv()
 def main() -> None:
     start_time = time.time()
     print(f"Starting evaluations at {datetime.now().isoformat()}\n")
-    # rs = eval()
-    # print("Agent Evaluation Results:")
-    # for r in rs:
-    #     print(r)
+    rs = eval()
+    print("Agent Evaluation Results:")
+    for r in rs:
+        print(r)
 
     # Run Agent Evaluations
     print("Starting Agent Evaluations...\n")
-    asyncio.run(agent_eval())
+    evalrs = agent_eval()
+    print("Agent Evaluation Results:" , evalrs)
 
     # Run Red Team Evaluation
     print("\nStarting Red Team Evaluation...\n")
-    # asyncio.run(redteamagent())
+    asyncio.run(redteamagent())
 
     end_time = time.time()
     duration = end_time - start_time

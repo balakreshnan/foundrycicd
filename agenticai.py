@@ -2,7 +2,8 @@ import asyncio
 from datetime import datetime
 import time
 from azure.identity import DefaultAzureCredential
-from azure.ai.projects import AIProjectClient
+#from azure.ai.projects import AIProjectClient
+from azure.ai.projects.aio import AIProjectClient
 from azure.ai.projects.models import (
     RedTeam,
     AzureOpenAIModelConfiguration,
@@ -470,51 +471,54 @@ def agent_eval() -> str:
 
     # To enable tool calls executed automatically
     # project_client.agents.enable_auto_function_calls(tools=toolset)
-    agent = project_client.agents.create_agent(
-        model=os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"],
-        name=AGENT_NAME,
-        instructions="You are a helpful assistant",
-        toolset=toolset,
-        #definition=None,
-    )
+    # agent = project_client.agents.create_agent(
+    #     model=os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"],
+    #     name=AGENT_NAME,
+    #     instructions="You are a helpful assistant",
+    #     toolset=toolset,
+    #     #definition=None,
+    # )
+    # print(f"Created agent, ID: {agent.id}")
+    # agent = project_client.agents.create(name="Agentic Eval Assistant")   
+    # print(f"Created agent, ID: {agent}")
 
-    print(f"Created agent, ID: {agent.id}")
-    # https://github.com/Azure-Samples/azureai-samples/blob/main/scenarios/evaluate/Supported_Evaluation_Metrics/Agent_Evaluation/Evaluate_Azure_AI_Agent_Quality.ipynb
-    # Create a thread for communication
-    thread = project_client.agents.threads.create()
-    print(f"Created thread, ID: {thread.id}")
-    # Create message to thread
-
-    MESSAGE = "Can you email me weather info for Seattle ?"
-
-    # Add a message to the thread
-    message = project_client.agents.messages.create(
-        thread_id=thread.id,
-        role="user",  # Role of the message sender
-        content=MESSAGE,  # Message content
-    )
-    print(f"Created message, ID: {message['id']}")
-    # Create and process an agent run
-    run = project_client.agents.runs.create_and_process(thread_id=thread.id, agent_id=agent.id)
-    print(f"Run finished with status: {run.status}")
     
-    # Check if the run failed
-    if run.status == "failed":
-        print(f"Run failed: {run.last_error}")
-    
-    # Fetch and log all messages
-    messages = project_client.agents.messages.list(thread_id=thread.id)
-    for message in messages:
-        print(f"Role: {message.role}, Content: {message.content}")
-    # Initialize the converter that will be backed by the project.
-    converter = AIAgentConverter(project_client)
+    # # https://github.com/Azure-Samples/azureai-samples/blob/main/scenarios/evaluate/Supported_Evaluation_Metrics/Agent_Evaluation/Evaluate_Azure_AI_Agent_Quality.ipynb
+    # # Create a thread for communication
+    # thread = project_client.agents.threads.create()
+    # print(f"Created thread, ID: {thread.id}")
+    # # Create message to thread
 
-    thread_id = thread.id
-    run_id = run.id
+    # MESSAGE = "Can you email me weather info for Seattle ?"
+
+    # # Add a message to the thread
+    # message = project_client.agents.messages.create(
+    #     thread_id=thread.id,
+    #     role="user",  # Role of the message sender
+    #     content=MESSAGE,  # Message content
+    # )
+    # print(f"Created message, ID: {message['id']}")
+    # # Create and process an agent run
+    # run = project_client.agents.runs.create_and_process(thread_id=thread.id, agent_id=agent.id)
+    # print(f"Run finished with status: {run.status}")
+    
+    # # Check if the run failed
+    # if run.status == "failed":
+    #     print(f"Run failed: {run.last_error}")
+    
+    # # Fetch and log all messages
+    # messages = project_client.agents.messages.list(thread_id=thread.id)
+    # for message in messages:
+    #     print(f"Role: {message.role}, Content: {message.content}")
+    # # Initialize the converter that will be backed by the project.
+    # converter = AIAgentConverter(project_client)
+
+    # thread_id = thread.id
+    # run_id = run.id
     file_name = "evaluation_input_data.jsonl"
 
     # Get a single agent run data
-    evaluation_data_single_run = converter.convert(thread_id=thread_id, run_id=run_id)
+    # evaluation_data_single_run = converter.convert(thread_id=thread_id, run_id=run_id)
 
     # Run this to save thread data to a JSONL file for evaluation
     # Save the agent thread data to a JSONL file
@@ -523,7 +527,7 @@ def agent_eval() -> str:
     model_config = AzureOpenAIModelConfiguration(
         azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
         api_key=os.environ["AZURE_OPENAI_KEY"],
-        api_version=os.environ["AZURE_API_VERSION"],
+        api_version=os.environ["AZURE_OPENAI_API_VERSION"],
         azure_deployment=os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"],
     )
     # Needed to use content safety evaluators
@@ -548,17 +552,20 @@ def agent_eval() -> str:
             "task_adherence": task_adherence,
             #"response_completeness": response_completeness_evaluator,
         },
-        azure_ai_project=os.environ["PROJECT_ENDPOINT"],
+        azure_ai_project=os.environ["AZURE_AI_PROJECT"],
     )
     pprint(f'AI Foundary URL: {response.get("studio_url")}')
     # average scores across all runs
+    print("===========================================")
     pprint(response["metrics"])
-    returntxt = str(response["metrics"])
+    print("===========================================")
+    # returntxt = str(response["metrics"])
+    returntxt = response["metrics"]
 
-    # Delete the agent when done
-    project_client.agents.delete_agent(agent.id)
-    project_client.agents.threads.delete(thread.id)
-    print("Deleted agent and thread")
+    # # Delete the agent when done
+    # project_client.agents.delete_agent(agent.id)
+    # project_client.agents.threads.delete(thread.id)
+    # print("Deleted agent and thread")
 
     return returntxt
 
