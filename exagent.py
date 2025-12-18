@@ -26,14 +26,17 @@ async def main() -> None:
         AzureCliCredential() as credential,
         AIProjectClient(endpoint=os.environ["AZURE_AI_PROJECT"], credential=credential) as project_client,
     ):
-        azure_ai_agent = await project_client.agents.create_version(
-            agent_name="MicrosoftAgentFramework-1",
-            definition=PromptAgentDefinition(
-                model=os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"],
-                # Setting specific requirements to verify that this agent is used.
-                instructions="End each response with [END].",
-            ),
-        )
+        
+        # azure_ai_agent = await project_client.agents.create_version(
+        #     agent_name="MicrosoftAgentFramework-1",
+        #     definition=PromptAgentDefinition(
+        #         model=os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"],
+        #         # Setting specific requirements to verify that this agent is used.
+        #         instructions="End each response with [END].",
+        #     ),
+        # )
+
+        azure_ai_agent = await project_client.agents.get("MicrosoftAgentFramework-1")
 
         chat_client = AzureAIClient(
             project_client=project_client,
